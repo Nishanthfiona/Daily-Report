@@ -51,6 +51,7 @@
     "    st.plotly_chart(leads_chart)\n",
     "\n",
     "    # 2. Sales vs Date Chart\n",
+
     "    st.subheader(\"Sales Trend\")\n",
     "    sales_chart = px.line(sales_data, x='Date', y='Sales', title=\"Sales Over Time\")\n",
     "    st.plotly_chart(sales_chart)\n",
@@ -100,7 +101,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": None,
    "id": "715e9218-eb80-4f64-abed-10d530afe2d8",
    "metadata": {},
    "outputs": [],
