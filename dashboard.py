@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
+from scipy import stats
 
 # Uploading the file via Streamlit uploader
 st.title("Leads and Sales Analytics Dashboard")
@@ -64,22 +66,15 @@ if uploaded_file is not None:
         # Verify the cleaned data before plotting
         st.write("Cleaned Data Preview", df_filtered.head())
 
-        # Line chart for Leads Given over time with Trendline
-        try:
-            leads_chart = px.line(df_filtered, x='Date', y='Lead Generated', title="Leads Given Over Time",
-                                  trendline="ols", trendline_color_override="red")  # Adding trendline (Ordinary Least Squares)
-            leads_chart.update_traces(mode='markers+lines', name='Leads Given')
-            st.plotly_chart(leads_chart, use_container_width=True)
-        except Exception as e:
-            st.error(f"Error plotting Leads chart: {e}")
+        # Line chart for Leads Given over time
+        leads_chart = px.line(df_filtered, x='Date', y='Lead Generated', title="Leads Given Over Time")
+        leads_chart.update_traces(mode='markers+lines', name='Leads Given')
+        st.plotly_chart(leads_chart, use_container_width=True)
 
-        # Line chart for Sales over time with Trendline
-        try:
-            sales_chart = px.line(df_filtered, x='Date', y='Sales', title="Sales Over Time",
-                                  trendline="ols", trendline_color_override="blue")  # Adding trendline (Ordinary Least Squares)
-            sales_chart.update_traces(mode='markers+lines', name='Sales')
-            st.plotly_chart(sales_chart, use_container_width=True)
-        except Exception as e:
-            st.error(f"Error plotting Sales chart: {e}")
+        # Line chart for Sales over time
+        sales_chart = px.line(df_filtered, x='Date', y='Sales', title="Sales Over Time")
+        sales_chart.update_traces(mode='markers+lines', name='Sales')
+        st.plotly_chart(sales_chart, use_container_width=True)
+        
 else:
     st.write("Please upload an Excel file to see the charts.")
