@@ -56,12 +56,9 @@ if uploaded_file is not None:
         # Debug: Print the first few rows of the filtered DataFrame
         st.write("Filtered Data", df_filtered.head())
 
-        # Ensure 'Lead Generated' and 'Sales' are numeric
-        df_filtered['Lead Generated'] = pd.to_numeric(df_filtered['Lead Generated'], errors='coerce')
-        df_filtered['Sales'] = pd.to_numeric(df_filtered['Sales'], errors='coerce')
-
-        # Debug: Ensure correct column names and types
-        st.write("Data Types After Conversion", df_filtered.dtypes)
+        # Handle NaN or zero values by filling or ignoring them
+        df_filtered['Lead Generated'] = df_filtered['Lead Generated'].fillna(0)
+        df_filtered['Sales'] = df_filtered['Sales'].fillna(0)
 
         # Line chart for Leads Given over time with Trendline
         leads_chart = px.line(df_filtered, x='Date', y='Lead Generated', title="Leads Given Over Time",
