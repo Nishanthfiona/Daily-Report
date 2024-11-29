@@ -1,44 +1,32 @@
-import pandas as pd
 import streamlit as st
+import pandas as pd
 import plotly.express as px
-from io import BytesIO
+from datetime import datetime, timedelta
 
-# Function to reload the Excel file from Streamlit uploader
-def reload_excel_file(uploaded_file):
-    df = pd.read_excel(uploaded_file)
-    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
-    df = df.dropna(subset=['Date'])  # Drop rows with invalid dates
-    return df
+# Title of the App
+st.title("Sales and Leads Dashboard")
 
-# Upload the file using Streamlit's uploader
-uploaded_file = st.file_uploader("Choose an Excel file", type="xlsx")
+# File Uploader
+uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
+if uploaded_file:
+    # Load Excel Sheets
+    leads_data = pd.read_excel(uploaded_file, sheet_name=0)  # First sheet
+    sales_data = pd.read_excel(uploaded_file, sheet_name=1)  # Second sheet
 
-if uploaded_file is not None:
-    # Process the uploaded Excel file
-    data = reload_excel_file(uploaded_file)
+    # Sidebar Date Filters
+    st.sidebar.header("Filter by Date")
+    start_date = st.sidebar.date_input("Start Date", datetime.now().replace(day=1))
+    end_date = st.sidebar.date_input("End Date", datetime.now())
+    
+    # Filter Data
+    leads_data = leads_data[(leads_data['Date'] >= pd.to_datetime(start_date)) & 
+                            (leads_data['Date'] <= pd.to_datetime(end_date))]
+    sales_data = sales_data[(sales_data['Date'] >= pd.to_datetime(start_date)) & 
+                            (sales_data['Date'] <= pd.to_datetime(end_date))]
 
-    # Check column names
-    st.write(data.columns)  # Debug: Print the column names to check if 'Sale' exists
-
-    # Filter data for current month
-    current_month = pd.to_datetime("today").month
-    data['Month'] = data['Date'].dt.month
-    data_current_month = data[data['Month'] == current_month]
-
-    # Replace 'Sale' with the actual column name (check the printed column names)
-    total_sales_current_month = data_current_month['Sale'].sum()  # or correct the column name here
-
-    # Calculate Working Days for Current Month (assuming 30 days as an example)
-    total_days_in_month = pd.to_datetime("today").days_in_month
-    weekdays_in_month = pd.date_range("2024-01-01", periods=total_days_in_month, freq="B")  # Business days
-    working_days_current_month = len(weekdays_in_month)
-
-    # KPIs
-    st.metric("Total Sales for Current Month", total_sales_current_month)
-    st.metric("Working Days in Current Month", working_days_current_month)
-
-    # Example of a Trend Line Chart for Leads Given
-    leads_chart = px.line(data, x='Date', y='Leads Given', title="Leads Given Over Time")
+    # 1. Leads vs Date Chart
+    st.subheader("Leads Given Trend")
+    leads_chart = px.line(leads_data, x='Date', y='Leads Given', title="Leads Given Over Time")
     st.plotly_chart(leads_chart)
 
     # 2. Sales vs Date Chart
@@ -55,7 +43,7 @@ if uploaded_file is not None:
     total_sales = current_month_data['Sales'].sum()
     st.metric("Total Sales (Current Month)", total_sales)
 
-# Working Days Logic
+    # Working Days Logic
     first_day_of_month = today.replace(day=1)
     days_in_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - first_day_of_month
     total_days = days_in_month.days
@@ -87,4 +75,3 @@ if uploaded_file is not None:
     # Deficit
     deficit = sales_should_be - total_sales
     st.metric("Deficit", round(deficit, 2))
-    
