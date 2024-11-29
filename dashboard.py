@@ -17,13 +17,16 @@ if uploaded_file is not None:
     # Process the uploaded Excel file
     data = reload_excel_file(uploaded_file)
 
+    # Check column names
+    st.write(data.columns)  # Debug: Print the column names to check if 'Sale' exists
+
     # Filter data for current month
     current_month = pd.to_datetime("today").month
     data['Month'] = data['Date'].dt.month
     data_current_month = data[data['Month'] == current_month]
 
-    # Calculate Total Sales for Current Month
-    total_sales_current_month = data_current_month['Sale'].sum()
+    # Replace 'Sale' with the actual column name (check the printed column names)
+    total_sales_current_month = data_current_month['Sale'].sum()  # or correct the column name here
 
     # Calculate Working Days for Current Month (assuming 30 days as an example)
     total_days_in_month = pd.to_datetime("today").days_in_month
@@ -37,7 +40,6 @@ if uploaded_file is not None:
     # Example of a Trend Line Chart for Leads Given
     leads_chart = px.line(data, x='Date', y='Leads Given', title="Leads Given Over Time")
     st.plotly_chart(leads_chart)
-
 
     # 2. Sales vs Date Chart
     st.subheader("Sales Trend")
