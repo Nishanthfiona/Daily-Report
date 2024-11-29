@@ -19,19 +19,41 @@ if uploaded_file is not None:
     # Ensure the Date column is in datetime format
     df['Date'] = pd.to_datetime(df['Date'])
 
-    # Line chart for Leads Given over time
-    leads_chart = px.line(df, x='Date', y='Lead Generated', title="Leads Given Over Time")
+    # Sidebar filters for Date Range and Counselors
+    st.sidebar.header('Filters')
+    
+    # Date Range Filter
+    min_date = df['Date'].min()
+    max_date = df['Date'].max()
+    selected_date_range = st.sidebar.date_input("Select Date Range", [min_date, max_date])
+
+    # Filter the Data based on selected date range
+    df_filtered = df[(df['Date'] >= pd.to_datetime(selected_date_range[0])) & 
+                     (df['Date'] <= pd.to_datetime(selected_date_range[1]))]
+
+    # Counselor Dropdown filter
+    selected_counselors = st.sidebar.multiselect(
+        "Select Counselors", 
+        options=df_filtered['Counselors'].unique(), 
+        default=df_filtered['Counselors'].unique()
+    )
+    
+    # Filter by selected counselors
+    df_filtered = df_filtered[df_filtered['Counselors'].isin(selected_counselors)]
+
+    # Line chart for Leads Given over time with Trendline
+    leads_chart = px.line(df_filtered, x='Date', y='Lead Generated', title="Leads Given Over Time",
+                          trendline="ols", trendline_color_override="red")  # Adding trendline (Ordinary Least Squares)
     leads_chart.update_traces(mode='markers+lines', name='Leads Given')
 
-    # Line chart for Sales over time
-    sales_chart = px.line(df, x='Date', y='Sales', title="Sales Over Time")
+    # Line chart for Sales over time with Trendline
+    sales_chart = px.line(df_filtered, x='Date', y='Sales', title="Sales Over Time",
+                          trendline="ols", trendline_color_override="blue")  # Adding trendline (Ordinary Least Squares)
     sales_chart.update_traces(mode='markers+lines', name='Sales')
 
-    # Display both charts
-    st.plotly_chart(leads_chart)
-    st.plotly_chart(sales_chart)
-
-    # Optional: You can add more metrics below later for KPI calculation
+    # Display both charts (making them wider)
+    st.plotly_chart(leads_chart, use_container_width=True)
+    st.plotly_chart(sales_chart, use_container_width=True)
 
 else:
     st.write("Please upload an Excel file to see the charts.")
