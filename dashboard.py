@@ -9,6 +9,7 @@ st.title("Sales and Leads Dashboard")
 # File Uploader
 uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
 
+# Check if file is uploaded
 if uploaded_file:
     # Load Excel Sheets
     leads_data = pd.read_excel(uploaded_file, sheet_name=0)  # First sheet
@@ -19,7 +20,7 @@ if uploaded_file:
     start_date = st.sidebar.date_input("Start Date", datetime.now().replace(day=1))
     end_date = st.sidebar.date_input("End Date", datetime.now())
 
-    # Filter Data
+    # Filter Data based on selected dates
     leads_data = leads_data[(leads_data['Date'] >= pd.to_datetime(start_date)) & 
                              (leads_data['Date'] <= pd.to_datetime(end_date))]
     sales_data = sales_data[(sales_data['Date'] >= pd.to_datetime(start_date)) & 
@@ -79,4 +80,4 @@ if uploaded_file:
     st.metric("Deficit", round(deficit, 2))
 
 else:
-    st.warning("Please upload an Excel file.")
+    st.warning("Please upload an Excel file to continue.")
