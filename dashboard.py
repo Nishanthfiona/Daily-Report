@@ -31,53 +31,37 @@ if uploaded_file is not None:
     slope_sales, intercept_sales, _, _, _ = stats.linregress(df['Date'].map(pd.Timestamp.toordinal), df['Sales'])
     df['Sales Trendline'] = slope_sales * df['Date'].map(pd.Timestamp.toordinal) + intercept_sales
 
-    # Extract year, month, and day for drilldown
-    df['Year'] = df['Date'].dt.year
-    df['Month'] = df['Date'].dt.month
-    df['Day'] = df['Date'].dt.day
+    # Bar chart for Leads Given over time with trendline
+    leads_chart = px.bar(df, x='Date', y='Lead Generated', title="Leads Given Over Time", color='Lead Generated')
+    leads_chart.update_traces(marker=dict(color='lightgreen', line=dict(color='green', width=2)))
+    
+    # Add trendline to the chart
+    leads_chart.add_scatter(x=df['Date'], y=df['Leads Trendline'], mode='lines', name='Leads Trendline', 
+                            line=dict(color='green', width=3))
 
-    # Create hierarchical data using Plotly date hierarchy
-    leads_chart = px.line(df, 
-                          x='Date', 
-                          y=['Lead Generated', 'Leads Trendline'], 
-                          title="Leads Given Over Time",
-                          labels={'Lead Generated': 'Leads Given'},
-                          line_shape='linear',
-                          markers=True)
+    # Bar chart for Sales over time with trendline
+    sales_chart = px.bar(df, x='Date', y='Sales', title="Sales Over Time", color='Sales')
+    sales_chart.update_traces(marker=dict(color='lightgreen', line=dict(color='green', width=2)))
 
-    sales_chart = px.line(df, 
-                          x='Date', 
-                          y=['Sales', 'Sales Trendline'], 
-                          title="Sales Over Time",
-                          labels={'Sales': 'Sales'},
-                          line_shape='linear',
-                          markers=True)
+    # Add trendline to the chart
+    sales_chart.add_scatter(x=df['Date'], y=df['Sales Trendline'], mode='lines', name='Sales Trendline', 
+                            line=dict(color='green', width=3))
 
-    # Add date hierarchy to the x-axis for both charts (Year > Month > Day)
+    # Styling the layout
     leads_chart.update_layout(
-        xaxis=dict(
-            tickformat="%b %d, %Y",
-            rangeslider_visible=True,
-            type="category",  # Ensure that Plotly can handle this as categorical
-            tickmode='array',
-            tickvals=df['Date'].dt.date.unique()
-        ),
-        showlegend=True,
+        xaxis_title="Date",
+        yaxis_title="Lead Generated",
         template="plotly_dark",
-        title_x=0.5
+        title_x=0.5,
+        showlegend=True
     )
 
     sales_chart.update_layout(
-        xaxis=dict(
-            tickformat="%b %d, %Y",
-            rangeslider_visible=True,
-            type="category",  # Ensure that Plotly can handle this as categorical
-            tickmode='array',
-            tickvals=df['Date'].dt.date.unique()
-        ),
-        showlegend=True,
+        xaxis_title="Date",
+        yaxis_title="Sales",
         template="plotly_dark",
-        title_x=0.5
+        title_x=0.5,
+        showlegend=True
     )
 
     # Display both charts
