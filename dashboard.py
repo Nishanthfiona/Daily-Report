@@ -1,11 +1,10 @@
 import pandas as pd
-import plotly.express as px
 import streamlit as st
+import plotly.express as px
 from io import BytesIO
 
 # Function to reload the Excel file from Streamlit uploader
 def reload_excel_file(uploaded_file):
-    # Load the uploaded file into a DataFrame
     df = pd.read_excel(uploaded_file)
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     df = df.dropna(subset=['Date'])  # Drop rows with invalid dates
@@ -16,21 +15,27 @@ uploaded_file = st.file_uploader("Choose an Excel file", type="xlsx")
 
 if uploaded_file is not None:
     # Process the uploaded Excel file
-    leads_data = reload_excel_file(uploaded_file)
+    data = reload_excel_file(uploaded_file)
 
-    # Display KPIs
+    # Filter data for current month
+    current_month = pd.to_datetime("today").month
+    data['Month'] = data['Date'].dt.month
+    data_current_month = data[data['Month'] == current_month]
+
+    # Calculate Total Sales for Current Month
+    total_sales_current_month = data_current_month['Sale'].sum()
+
+    # Calculate Working Days for Current Month (assuming 30 days as an example)
+    total_days_in_month = pd.to_datetime("today").days_in_month
+    weekdays_in_month = pd.date_range("2024-01-01", periods=total_days_in_month, freq="B")  # Business days
+    working_days_current_month = len(weekdays_in_month)
+
+    # KPIs
     st.metric("Total Sales for Current Month", total_sales_current_month)
-    st.metric("Working Days this Month", working_days_current_month)
+    st.metric("Working Days in Current Month", working_days_current_month)
 
-    # Date filter widget
-    start_date = st.date_input("Start Date", pd.to_datetime('2024-01-01'))
-    end_date = st.date_input("End Date", pd.to_datetime('2024-12-31'))
-
-    # Filter data based on date range
-    filtered_data = leads_data[(leads_data['Date'] >= start_date) & (leads_data['Date'] <= end_date)]
-
-    # Plot the filtered data
-    leads_chart = px.line(filtered_data, x='Date', y='Leads Given', title="Leads Given Over Time")
+    # Example of a Trend Line Chart for Leads Given
+    leads_chart = px.line(data, x='Date', y='Leads Given', title="Leads Given Over Time")
     st.plotly_chart(leads_chart)
 
 
