@@ -33,27 +33,29 @@ if uploaded_file is not None:
 
     # Line chart for Leads Given over time with trendline
     leads_chart = px.line(df, x='Date', y=['Lead Generated', 'Leads Trendline'], title="Leads Given Over Time")
-    leads_chart.update_traces(mode='lines', name='Leads Given', line=dict(color='royalblue'))
-    leads_chart.update_traces(name="Leads Trendline", line=dict(color='red', dash='dash'))
+    leads_chart.update_traces(mode='lines', name='Leads Given', line=dict(color='deepskyblue', width=2))
+    leads_chart.update_traces(name="Leads Trendline", line=dict(color='red', width=3))
 
     # Line chart for Sales over time with trendline
     sales_chart = px.line(df, x='Date', y=['Sales', 'Sales Trendline'], title="Sales Over Time")
-    sales_chart.update_traces(mode='lines', name='Sales', line=dict(color='royalblue'))
-    sales_chart.update_traces(name="Sales Trendline", line=dict(color='red', dash='dash'))
+    sales_chart.update_traces(mode='lines', name='Sales', line=dict(color='deepskyblue', width=2))
+    sales_chart.update_traces(name="Sales Trendline", line=dict(color='red', width=3))
 
     # Styling the layout
     leads_chart.update_layout(
         xaxis_title="Date",
         yaxis_title="Lead Generated",
         template="plotly_dark",
-        title_x=0.5
+        title_x=0.5,
+        showlegend=True
     )
 
     sales_chart.update_layout(
         xaxis_title="Date",
         yaxis_title="Sales",
         template="plotly_dark",
-        title_x=0.5
+        title_x=0.5,
+        showlegend=True
     )
 
     # Display both charts
