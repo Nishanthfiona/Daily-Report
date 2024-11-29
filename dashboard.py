@@ -19,10 +19,6 @@ if uploaded_file is not None:
     df_leads.columns = df_leads.columns.str.strip()
     df_sales.columns = df_sales.columns.str.strip()
 
-    # Print column names for debugging
-    st.write("Columns in Leads Data:", df_leads.columns)
-    st.write("Columns in Sales Data:", df_sales.columns)
-
     # Merge the two dataframes on 'Date' and 'Counselors' to combine the leads and sales data
     df = pd.merge(df_leads, df_sales, on=['Date', 'Counselors'], how='inner')
 
