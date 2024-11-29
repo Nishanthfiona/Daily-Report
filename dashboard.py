@@ -1,33 +1,37 @@
-import streamlit as st
 import pandas as pd
 import plotly.express as px
-from datetime import datetime, timedelta
+import streamlit as st
+from openpyxl import load_workbook
 
-# Title of the App
-st.title("Sales and Leads Dashboard")
+# Load and process Excel file
+def reload_excel_file(file_path):
+    wb = load_workbook(file_path)
+    sheet = wb.active
+    df = pd.DataFrame(sheet.values)
+    df.columns = df.iloc[0]  # Use first row as header
+    df = df.drop(0)  # Drop first row
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+    df = df.dropna(subset=['Date'])  # Drop rows with invalid dates
+    return df
 
-# File Uploader
-uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
-if uploaded_file:
-    # Load Excel Sheets
-    leads_data = pd.read_excel(uploaded_file, sheet_name=0)  # First sheet
-    sales_data = pd.read_excel(uploaded_file, sheet_name=1)  # Second sheet
+# Load your data
+file_path = 'your_excel_file.xlsx'  # Update with your file path
+leads_data = reload_excel_file(file_path)
 
-    # Sidebar Date Filters
-    st.sidebar.header("Filter by Date")
-    start_date = st.sidebar.date_input("Start Date", datetime.now().replace(day=1))
-    end_date = st.sidebar.date_input("End Date", datetime.now())
-    
-    # Filter Data
-    leads_data = leads_data[(leads_data['Date'] >= pd.to_datetime(start_date)) & 
-                            (leads_data['Date'] <= pd.to_datetime(end_date))]
-    sales_data = sales_data[(sales_data['Date'] >= pd.to_datetime(start_date)) & 
-                            (sales_data['Date'] <= pd.to_datetime(end_date))]
+# Display KPIs
+st.metric("Total Sales for Current Month", total_sales_current_month)
+st.metric("Working Days this Month", working_days_current_month)
 
-    # 1. Leads vs Date Chart
-    st.subheader("Leads Given Trend")
-    leads_chart = px.line(leads_data, x='Date', y='Leads Given', title="Leads Given Over Time")
-    st.plotly_chart(leads_chart)
+# Date filter widget
+start_date = st.date_input("Start Date", pd.to_datetime('2024-01-01'))
+end_date = st.date_input("End Date", pd.to_datetime('2024-12-31'))
+
+# Filter data based on date range
+filtered_data = leads_data[(leads_data['Date'] >= start_date) & (leads_data['Date'] <= end_date)]
+
+# Plot the filtered data
+leads_chart = px.line(filtered_data, x='Date', y='Leads Given', title="Leads Given Over Time")
+st.plotly_chart(leads_chart)
 
     # 2. Sales vs Date Chart
     st.subheader("Sales Trend")
