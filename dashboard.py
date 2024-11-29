@@ -51,16 +51,10 @@ if uploaded_file is not None:
     if df_filtered.empty:
         st.warning("No data available for the selected filters.")
     else:
-        # Debug: Print the first few rows of the filtered DataFrame
-        st.write("Filtered Data", df_filtered.head())
-        st.write("Data Types After Conversion", df_filtered.dtypes)
 
         # Handle NaN or zero values by filling or ignoring them
         df_filtered['Lead Generated'] = df_filtered['Lead Generated'].fillna(0)
         df_filtered['Sales'] = df_filtered['Sales'].fillna(0)
-
-        # Verify the cleaned data before plotting
-        st.write("Cleaned Data Preview", df_filtered.head())
 
         # Line chart for Leads Given over time
         leads_chart = px.line(df_filtered, x='Date', y='Lead Generated', title="Leads Given Over Time")
